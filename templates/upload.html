@@ -4,44 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload File</title>
-    <script>
-        function updateProgress(loaded, total, speed) {
-            var progressBar = document.getElementById('progress-bar');
-            var progressText = document.getElementById('progress-text');
-            progressBar.value = loaded / total * 100;
-            progressText.innerHTML = 'Uploaded ' + (loaded / 1024).toFixed(2) + ' KB | Speed: ' + speed.toFixed(2) + ' KB/s';
-        }
-    </script>
 </head>
 <body>
     <h1>Upload File</h1>
-    <form method="POST" enctype="multipart/form-data" onsubmit="startTimer()">
-        <input type="file" name="file" required>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="file-input" required>
         <button type="submit">Upload</button>
     </form>
     <progress id="progress-bar" max="100" value="0"></progress>
     <div id="progress-text"></div>
 
     <script>
-        function startTimer() {
-            var startTime = Date.now();
-            var progressBar = document.getElementById('progress-bar');
-            var progressText = document.getElementById('progress-text');
-            var previousLoaded = 0;
-            var previousTime = startTime;
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData();
+            var fileInput = document.getElementById('file-input');
+            formData.append('file', fileInput.files[0]);
 
-            setInterval(function() {
-                var currentTime = Date.now();
-                var elapsedTime = (currentTime - startTime) / 1000; // seconds
-                var loaded = progressBar.value / 100 * progressBar.max; // KB
-                var speed = (loaded - previousLoaded) / (currentTime - previousTime) * 1000; // KB/s
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
 
-                updateProgress(loaded, progressBar.max, speed);
-                previousLoaded = loaded;
-                previousTime = currentTime;
-            }, 1000);
-        }
+            xhr.upload.onprogress = function(event) {
+                var progressBar = document.getElementById('progress-bar');
+                var progressText = document.getElementById('progress-text');
+                if (event.lengthComputable) {
+                    progressBar.value = (event.loaded / event.total) * 100;
+                    progressText.textContent = 'Uploaded ' + (event.loaded / 1024).toFixed(2) + ' KB | Speed: ' + (event.loaded / (event.loaded / event.total) / 1024).toFixed(2) + ' KB/s';
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('File uploaded successfully!');
+                } else {
+                    alert('An error occurred while uploading the file.');
+                }
+            };
+
+            xhr.send(formData);
+        });
     </script>
 </body>
 </html>
-
