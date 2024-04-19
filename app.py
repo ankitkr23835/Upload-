@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://ankitkr88588:air8858@cluster0.mceo1nl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 db = client['file_upload']
