@@ -70,7 +70,7 @@ def upload_file():
             return f'File uploaded successfully! Download link: {download_link}'
         else:
         # Redirect to upload_success page with download_link query parameter
-            return redirect(url_for('upload_success', download_link=download_link))
+            return redirect(url_for('upload_success', name=filename,text=random_text))
     
     
     return render_template('upload.html')
@@ -80,7 +80,9 @@ from flask import request
 
 @app.route('/upload_success')
 def upload_success():
-    download_link = request.args.get('download_link')
+    filename=request.args.get('name')
+    random_text=request.args.get('text')
+    download_link = f'https://upload-1-hen4.onrender.com/download/{random_text}/{filename}'
     if download_link:
         return render_template('upload_success.html', download_link=download_link)
     else:
