@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <script>
+        function updateProgress(loaded, total, speed) {
+            var progressBar = document.getElementById('progress-bar');
+            var progressText = document.getElementById('progress-text');
+            progressBar.value = loaded / total * 100;
+            progressText.innerHTML = 'Uploaded ' + (loaded / 1024).toFixed(2) + ' KB | Speed: ' + speed.toFixed(2) + ' KB/s';
+        }
+    </script>
+</head>
+<body>
+    <h1>Upload File</h1>
+    <form method="POST" enctype="multipart/form-data" onsubmit="startTimer()">
+        <input type="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+    <progress id="progress-bar" max="100" value="0"></progress>
+    <div id="progress-text"></div>
+
+    <script>
+        function startTimer() {
+            var startTime = Date.now();
+            var progressBar = document.getElementById('progress-bar');
+            var progressText = document.getElementById('progress-text');
+            var previousLoaded = 0;
+            var previousTime = startTime;
+
+            setInterval(function() {
+                var currentTime = Date.now();
+                var elapsedTime = (currentTime - startTime) / 1000; // seconds
+                var loaded = progressBar.value / 100 * progressBar.max; // KB
+                var speed = (loaded - previousLoaded) / (currentTime - previousTime) * 1000; // KB/s
+
+                updateProgress(loaded, progressBar.max, speed);
+                previousLoaded = loaded;
+                previousTime = currentTime;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
 
