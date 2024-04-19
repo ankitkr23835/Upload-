@@ -28,6 +28,8 @@ def generate_unique_random_string():
 def index():
     return 'Welcome to the file-sharing application!'
 
+from flask import redirect, url_for
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -64,9 +66,16 @@ def upload_file():
         uploads_collection.insert_one({'filename': random_text, 'time_created': datetime.now()})
         
         download_link = f'https://upload-1-hen4.onrender.com/download/{random_text}/{filename}'
-        return f'File uploaded successfully! {download_link}'
+        
+        return redirect(url_for('upload_success', download_link=download_link))
     
     return render_template('upload.html')
+
+
+@app.route('/upload_success')
+def upload_success():
+    download_link = request.args.get('download_link')
+    return render_template('upload_success.html', download_link=download_link)
 
 @app.route('/download/<directory>/<filename>')
 def download_file(directory, filename):
