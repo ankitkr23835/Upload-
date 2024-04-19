@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, request, send_file
+from flask import Flask, request, render_template, request, send_file
 import os
 import time
 import random
@@ -63,7 +63,7 @@ def upload_file():
         # Add entry to MongoDB with filename and current time
         uploads_collection.insert_one({'filename': random_text, 'time_created': datetime.now()})
         
-        download_link = f'<a href="/download/{random_text}/{filename}">Download {filename}</a>'
+        download_link = f'https://upload-1-hen4.onrender.com/download/{random_text}/{filename}'
         return f'File uploaded successfully! {download_link}'
     
     return render_template('upload.html')
