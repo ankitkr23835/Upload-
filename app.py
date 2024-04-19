@@ -67,14 +67,16 @@ def upload_file():
         
         download_link = f'https://upload-1-hen4.onrender.com/download/{random_text}/{filename}'
         
+        # Redirect to upload_success page with download_link query parameter
         return redirect(url_for('upload_success', download_link=download_link))
+    
     
     return render_template('upload.html')
 
 
 @app.route('/upload_success')
-def upload_success(download_link):
-    
+def upload_success():
+    download_link = request.args.get('download_link')
     return render_template('upload_success.html', download_link=download_link)
 
 @app.route('/download/<directory>/<filename>')
