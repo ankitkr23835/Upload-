@@ -73,8 +73,8 @@ def upload_file():
 
 
 @app.route('/upload_success')
-def upload_success():
-    download_link = request.args.get('download_link')
+def upload_success(download_link):
+    
     return render_template('upload_success.html', download_link=download_link)
 
 @app.route('/download/<directory>/<filename>')
