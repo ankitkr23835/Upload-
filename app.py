@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, request, render_template, request, send_file
+from flask import Flask, session, request, render_template, request, send_file
 import os
 import time
 import random
@@ -70,24 +70,22 @@ def upload_file():
             return f'File uploaded successfully! Download link: {download_link}'
         else:
         # Redirect to upload_success page with download_link query parameter
-            return redirect(url_for('upload_success', name=filename,text=random_text))
+            session['download_link'] = download_link
+        
+        # Redirect to the upload_success page
+            return redirect('/upload_success')
     
     
     return render_template('upload.html')
 
 
-from flask import request
-
 @app.route('/upload_success')
 def upload_success():
-    filename=request.args.get('name')
-    random_text=request.args.get('text')
-    download_link = f'https://upload-1-hen4.onrender.com/download/{random_text}/{filename}'
-    if download_link:
-        return render_template('upload_success.html', download_link=download_link)
-    else:
-        return "Download link not found", 404
-        
+    # Retrieve the download link from the session
+    download_link = session.get('download_link')
+    return render_template('upload_success.html', download_link=download_link)
+    
+
 
 
 @app.route('/download/<directory>/<filename>')
