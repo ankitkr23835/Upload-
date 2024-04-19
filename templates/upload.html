@@ -35,7 +35,8 @@
 
             xhr.onload = function() {
                 if (xhr.status === 200) {
-                    alert('File uploaded successfully!');
+                    // Redirect to upload success page
+                    window.location.href = '/upload_success';
                 } else {
                     alert('An error occurred while uploading the file.');
                 }
