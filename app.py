@@ -74,10 +74,17 @@ def upload_file():
     return render_template('upload.html')
 
 
+from flask import request
+
 @app.route('/upload_success')
 def upload_success():
     download_link = request.args.get('download_link')
-    return render_template('upload_success.html', download_link=download_link)
+    if download_link:
+        return render_template('upload_success.html', download_link=download_link)
+    else:
+        return "Download link not found", 404
+        
+
 
 @app.route('/download/<directory>/<filename>')
 def download_file(directory, filename):
