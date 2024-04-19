@@ -66,9 +66,11 @@ def upload_file():
         uploads_collection.insert_one({'filename': random_text, 'time_created': datetime.now()})
         
         download_link = f'https://upload-1-hen4.onrender.com/download/{random_text}/{filename}'
-        
+        if 'User-Agent' in request.headers and 'curl' in request.headers['User-Agent']:
+            return f'File uploaded successfully! Download link: {download_link}'
+        else:
         # Redirect to upload_success page with download_link query parameter
-        return redirect(url_for('upload_success', download_link=download_link))
+            return redirect(url_for('upload_success', download_link=download_link))
     
     
     return render_template('upload.html')
