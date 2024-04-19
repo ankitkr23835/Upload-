@@ -38,6 +38,10 @@ def upload_file():
         return 'File uploaded successfully!'
     
     return render_template('upload.html')
-
+@app.route('/download/<filename>')
+def download_file(filename):
+    # Serve the file for download
+    return send_file('uploads/' + filename, as_attachment=True)
+    
 if __name__ == '__main__':
     app.run(host="0.0.0.0",port=5000,debug=True)
