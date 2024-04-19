@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 
 # Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb+srv://ankitkr88588:air8858@cluster0.mceo1nl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 db = client['file_upload']
 uploads_collection = db['uploads']
 
