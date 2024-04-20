@@ -100,7 +100,7 @@ def download_file(directory, filename):
 
 def delete_old_files():
     # Delete files and directories older than 24 hours
-    threshold_time = datetime.now() - timedelta(hours=48)
+    threshold_time = datetime.now() - timedelta(hours=168)
     old_files = uploads_collection.find({'time_created': {'$lt': threshold_time}})
     for file in old_files:
         file_path = os.path.join('uploads', file['filename'])
