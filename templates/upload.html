@@ -4,15 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #upload-form {
+            text-align: center;
+        }
+
+        #file-input {
+            margin-bottom: 10px;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 20px;
+            margin-top: 20px;
+        }
+
+        #progress-text {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload File</h1>
-    <form id="upload-form" enctype="multipart/form-data">
-        <input type="file" id="file-input" required>
-        <button type="submit">Upload</button>
-    </form>
-    <progress id="progress-bar" max="100" value="0"></progress>
-    <div id="progress-text"></div>
+    <div>
+        <h1>Upload File</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" id="file-input" required>
+            <button type="submit">Upload</button>
+        </form>
+        <progress id="progress-bar" max="100" value="0"></progress>
+        <div id="progress-text"></div>
+    </div>
 
     <script>
         document.getElementById('upload-form').addEventListener('submit', function(event) {
@@ -21,6 +53,8 @@
             var fileInput = document.getElementById('file-input');
             formData.append('file', fileInput.files[0]);
 
+            var startTime = new Date().getTime();
+
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/upload', true);
 
@@ -28,8 +62,12 @@
                 var progressBar = document.getElementById('progress-bar');
                 var progressText = document.getElementById('progress-text');
                 if (event.lengthComputable) {
+                    var currentTime = new Date().getTime();
+                    var elapsedTime = (currentTime - startTime) / 1000; // Convert to seconds
+                    var speed = event.loaded / elapsedTime; // Calculate speed in bytes per second
+
                     progressBar.value = (event.loaded / event.total) * 100;
-                    progressText.textContent = 'Uploaded ' + (event.loaded / 1024).toFixed(2) + ' KB | Speed: ' + (event.loaded / (event.loaded / event.total) / 1024).toFixed(2) + ' KB/s';
+                    progressText.textContent = 'Uploaded ' + (event.loaded / 1024).toFixed(2) + ' KB | Speed: ' + (speed / 1024).toFixed(2) + ' KB/s';
                 }
             };
 
