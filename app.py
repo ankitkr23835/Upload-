@@ -30,9 +30,9 @@ def index():
 
 from flask import redirect, url_for
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/upload', methods=['GET', 'POST','PUT'])
 def upload_file():
-    if request.method == 'POST':
+    if request.method in ['POST','PUT']:
         # Generate a random but unique 10-digit text combination of letters and numbers
         random_text = generate_unique_random_string()
 
