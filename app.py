@@ -33,7 +33,7 @@ from flask import request, Response
 
 from werkzeug.utils import secure_filename
 
-@app.route('/upload', methods=['GET', 'POST', 'PUT'])
+@app.route('/upload', methods=['POST', 'PUT'])
 def upload_file():
     if request.method == 'POST' or request.method == 'PUT':
         # Generate a random but unique 10-digit text combination of letters and numbers
