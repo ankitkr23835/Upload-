@@ -45,7 +45,8 @@ def upload_file():
             os.makedirs(directory_path)
 
         # Extract filename from the URL
-        filename = secure_filename(os.path.basename(request.url))
+        uploaded_file = request.files['file']
+        filename = uploaded_file.filename
 
         # Start time for calculating upload speed
         start_time = time.time()
