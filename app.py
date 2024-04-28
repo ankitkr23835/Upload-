@@ -31,6 +31,8 @@ def index():
 from flask import redirect, url_for
 from flask import request, Response
 
+from werkzeug.utils import secure_filename
+
 @app.route('/upload', methods=['POST', 'PUT'])
 def upload_file():
     if request.method == 'POST' or request.method == 'PUT':
@@ -42,9 +44,8 @@ def upload_file():
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
 
-        filename = request.headers.get('X-File-Name')
-        if not filename:
-            filename = generate_random_string() + ".bin"
+        # Extract filename from the URL
+        filename = secure_filename(os.path.basename(request.url))
 
         # Start time for calculating upload speed
         start_time = time.time()
@@ -82,6 +83,7 @@ def upload_file():
             return redirect('/upload_success')
 
     return render_template('upload.html')
+
 
         
         # Add 
