@@ -35,7 +35,7 @@ from werkzeug.utils import secure_filename
 
 @app.route('/upload', methods=['GET', 'POST', 'PUT'])
 def upload_file():
-        if request.method == 'POST':
+    if request.method == 'POST':
         # Generate a random but unique 10-digit text combination of letters and numbers
         random_text = generate_unique_random_string()
 
