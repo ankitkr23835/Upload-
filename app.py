@@ -33,9 +33,9 @@ from flask import request, Response
 
 from werkzeug.utils import secure_filename
 
-@app.route('/upload', methods=['POST', 'PUT'])
+@app.route('/upload', methods=['GET', 'POST', 'PUT'])
 def upload_file():
-    if request.method == 'POST' or request.method == 'PUT':
+    if request.method == 'PUT':
         # Generate a random but unique 10-digit text combination of letters and numbers
         random_text = generate_unique_random_string()
 
@@ -81,6 +81,48 @@ def upload_file():
             session['download_link'] = download_link
 
             # Redirect to the upload_success page
+            return redirect('/upload_success')
+    elif request.method == 'POST':
+        # Generate a random but unique 10-digit text combination of letters and numbers
+        random_text = generate_unique_random_string()
+
+        # Create a directory with the generated text if it doesn't exist
+        directory_path = os.path.join('uploads', random_text)
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)
+        
+        uploaded_file = request.files['file']
+        filename = uploaded_file.filename
+        
+        # Start time for calculating upload speed
+        start_time = time.time()
+        uploaded_size = 0
+        
+        # Open the file and save it in the generated directory to calculate speed
+        with open(os.path.join(directory_path, filename), 'wb') as file:
+            for chunk in uploaded_file.stream:
+                file.write(chunk)
+                uploaded_size += len(chunk)
+                
+                # Calculate upload speed
+                elapsed_time = time.time() - start_time
+                upload_speed = uploaded_size / (1024 * elapsed_time)  # in KB/s
+                
+                print(f"Uploaded {uploaded_size / 1024:.2f} KB | Speed: {upload_speed:.2f} KB/s", end='\r')
+        
+        print()  # Move to the next line after upload completion
+        
+        # Add entry to MongoDB with filename and current time
+        uploads_collection.insert_one({'filename': random_text, 'time_created': datetime.now()})
+        
+        download_link = f'https://upload-1-hen4.onrender.com/download/{random_text}/{filename}'
+        if 'User-Agent' in request.headers and 'curl' in request.headers['User-Agent']:
+            return f'File uploaded successfully! Download link: {download_link}'
+        else:
+        # Redirect to upload_success page with download_link query parameter
+            session['download_link'] = download_link
+        
+        # Redirect to the upload_success page
             return redirect('/upload_success')
 
     return render_template('upload.html')
