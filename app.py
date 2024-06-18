@@ -46,6 +46,7 @@ def upload_file():
         
         uploaded_file = request.files['file']
         filename = uploaded_file.filename
+        filename = filename.replace(" ",-)
         
         # Start time for calculating upload speed
         start_time = time.time()
