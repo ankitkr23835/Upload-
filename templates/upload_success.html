@@ -4,9 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Upload Success</title>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f9;
+          color: #333;
+          text-align: center;
+          padding: 50px;
+      }
+      h1 {
+          color: #4CAF50;
+      }
+      p a {
+          color: #4CAF50;
+          text-decoration: none;
+          font-weight: bold;
+      }
+      p a:hover {
+          text-decoration: underline;
+      }
+      a {
+          display: inline-block;
+          margin: 20px;
+          padding: 10px 20px;
+          background-color: #4CAF50;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+      }
+      a:hover {
+          background-color: #45a049;
+      }
+  </style>
 </head>
 <body>
   <h1>File uploaded successfully!</h1>
   <p>Download link: <a href="{{ download_link }}">{{ download_link }}</a></p>
+  <a href="/upload">Upload Another File</a>
 </body>
 </html>
