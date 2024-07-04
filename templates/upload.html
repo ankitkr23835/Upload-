@@ -22,6 +22,7 @@
             border-radius: 10px;
             background-color: #fff;
             max-width: 400px;
+            position: relative;
         }
         input[type="file"] {
             display: none;
@@ -29,7 +30,6 @@
         label {
             background-color: #4CAF50;
             color: white;
-            border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
@@ -38,6 +38,19 @@
         label:hover {
             background-color: #45a049;
         }
+        #cancel-button {
+            display: none;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #cancel-button:hover {
+            background-color: #e53935;
+        }
         button {
             background-color: #4CAF50;
             color: white;
@@ -45,27 +58,20 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            display: inline-block;
-            margin-top: 10px;
+            display: none;
         }
         button:hover {
             background-color: #45a049;
         }
-        .cancel-button {
-            background-color: #f44336;
-        }
-        .cancel-button:hover {
-            background-color: #d32f2f;
-        }
-        .hidden {
+        #progress-container {
             display: none;
-        }
-        .progress-container {
             margin-top: 20px;
+            text-align: left;
         }
         progress {
             width: 100%;
             height: 20px;
+            margin: 10px 0;
         }
         #progress-text {
             margin-top: 10px;
@@ -117,6 +123,7 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5956825596826996" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -128,31 +135,26 @@
     <div id="drawer" class="drawer">
         <a href="javascript:void(0)" class="closebtn" onclick="toggleDrawer()">&times;</a>
         <a href="/"><i class="fa-solid fa-house"></i>Dashboard</a>
-        <a href="/login"><i class="fa-solid fa-user"></i>Owner login</a>
+        <a href="/upload">Upload File</a>
     </div>
     <h1>Upload File</h1>
     <form id="upload-form" enctype="multipart/form-data">
-        <label for="file-input" id="file-label"><i class="fa-solid fa-paperclip"></i>Choose File</label>
+        <label for="file-input" id="file-label"><i class="fa-solid fa-paperclip"></i>Choose a file</label>
         <input type="file" id="file-input" required>
-        <button type="submit" id="upload-button" class="hidden"><i class="fa-solid fa-upload"></i>Upload</button>
-        <button type="button" id="cancel-button" class="cancel-button hidden" onclick="location.reload()">Cancel</button>
+        <button type="submit"><i class="fa-solid fa-upload">Upload</button>
+        <button type="button" id="cancel-button" onclick="location.reload();">Cancel</button>
     </form>
-    <div class="progress-container hidden" id="progress-container">
+    <div id="progress-container">
         <progress id="progress-bar" max="100" value="0"></progress>
         <div id="progress-text"></div>
     </div>
 
     <script>
-        document.getElementById('file-input').addEventListener('change', function(event) {
-            var fileLabel = document.getElementById('file-label');
-            var uploadButton = document.getElementById('upload-button');
-            if (event.target.files.length > 0) {
-                fileLabel.textContent = 'Choose Another File';
-                uploadButton.classList.remove('hidden');
-            } else {
-                fileLabel.textContent = 'Choose File';
-                uploadButton.classList.add('hidden');
-            }
+        document.getElementById('file-input').addEventListener('change', function() {
+            var label = document.getElementById('file-label');
+            label.textContent = 'Choose Another File';
+            var button = document.querySelector('button[type="submit"]');
+            button.style.display = 'inline-block';
         });
 
         document.getElementById('upload-form').addEventListener('submit', function(event) {
@@ -164,22 +166,15 @@
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/upload', true);
 
-            var progressContainer = document.getElementById('progress-container');
-            var progressBar = document.getElementById('progress-bar');
-            var progressText = document.getElementById('progress-text');
-            var fileLabel = document.getElementById('file-label');
-            var uploadButton = document.getElementById('upload-button');
-            var cancelButton = document.getElementById('cancel-button');
-
-            fileLabel.classList.add('hidden');
-            uploadButton.classList.add('hidden');
-            cancelButton.classList.remove('hidden');
-            progressContainer.classList.remove('hidden');
-
             var startTime = new Date().getTime();
             var uploadedSize = 0;
 
             xhr.upload.onprogress = function(event) {
+                var progressContainer = document.getElementById('progress-container');
+                var progressBar = document.getElementById('progress-bar');
+                var progressText = document.getElementById('progress-text');
+                progressContainer.style.display = 'block';
+
                 if (event.lengthComputable) {
                     var percentComplete = (event.loaded / event.total) * 100;
                     progressBar.value = percentComplete;
@@ -187,7 +182,7 @@
                     uploadedSize = event.loaded;
                     var elapsedTime = (new Date().getTime() - startTime) / 1000;  // in seconds
                     var uploadSpeed = (uploadedSize / 1024) / elapsedTime;  // KB/s
-                    progressText.textContent = `Uploaded ${(uploadedSize / 1024).toFixed(2)} KB | Speed: ${uploadSpeed.toFixed(2)} KB/s`;
+                    progressText.innerHTML = `Uploaded ${(uploadedSize / 1024).toFixed(2)} KB (${percentComplete.toFixed(2)}%)<br>Speed: ${uploadSpeed.toFixed(2)} KB/s<br>Time Elapsed: ${elapsedTime.toFixed(2)} seconds`;
                 }
             };
 
@@ -196,11 +191,14 @@
                     window.location.href = '/upload_success';
                 } else {
                     alert('An error occurred while uploading the file.');
-                    location.reload();
                 }
             };
 
             xhr.send(formData);
+
+            document.getElementById('file-label').style.display = 'none';
+            document.querySelector('button[type="submit"]').style.display = 'none';
+            document.getElementById('cancel-button').style.display = 'inline-block';
         });
 
         function toggleDrawer() {
