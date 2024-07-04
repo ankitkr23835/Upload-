@@ -26,9 +26,47 @@ def generate_unique_random_string():
         if not uploads_collection.find_one({'filename': random_text}):
             return random_text
 
+
+USERNAME = 'ankitkumarkas1'
+PASSWORD = 'Air8858@'
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if 'username' in session:
+        return redirect(url_for('list_uploads'))
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username == USERNAME and password == PASSWORD:
+            session['username'] = username
+            return redirect(url_for('list_uploads'))
+        else:
+            error = 'Invalid credentials. Please try again.'
+            return render_template('login.html', error=error)
+    return render_template('login.html')
+
+@app.route('/list_uploads')
+def list_uploads():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    upload_dir = 'uploads'
+    directories = []
+    for subdir, _, files in os.walk(upload_dir):
+        total_size = sum(os.path.getsize(os.path.join(subdir, f)) for f in files)
+        directories.append((subdir, total_size))
+    return render_template('list_uploads.html', directories=directories)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 @app.route('/upload', methods=['GET', 'POST', 'PUT'])
 def upload_file():
@@ -105,4 +143,4 @@ if __name__ == '__main__':
     scheduler.add_job(delete_old_files, 'interval', hours=1)
     scheduler.start()
 
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=3000, debug=True)

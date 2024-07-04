@@ -5,50 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload File</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0f7fa;
             color: #333;
+            margin: 0;
+            padding: 0;
             text-align: center;
-            padding: 50px;
         }
         h1 {
-            color: #4CAF50;
+            color: #00796b;
+            margin-top: 50px;
+            font-size: 2.5em;
         }
         form {
             margin: 20px auto;
-            padding: 20px;
+            padding: 30px;
             border: 1px solid #ddd;
             border-radius: 10px;
-            background-color: #fff;
+            background-color: #ffffff;
             max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
         input[type="file"] {
-            margin: 10px 0;
+            margin: 20px 0;
+            font-size: 1.2em;
         }
         button {
-            background-color: #4CAF50;
+            background-color: #00796b;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #004d40;
         }
         progress {
             width: 100%;
             height: 20px;
-            margin: 10px 0;
+            margin: 20px 0;
+            border-radius: 5px;
         }
         #progress-text {
             margin-top: 10px;
+            font-size: 1em;
+            color: #00796b;
+        }
+        .hamburger {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .hamburger div {
+            width: 35px;
+            height: 5px;
+            background-color: #00796b;
+            margin: 6px 0;
+            transition: 0.4s;
+        }
+        .drawer {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 999;
+            top: 0;
+            left: 0;
+            background-color: #00796b;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        .drawer a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 1.5em;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+        .drawer a:hover {
+            background-color: #004d40;
+        }
+        .drawer .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
         }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5956825596826996" crossorigin="anonymous"></script>
 </head>
 <body>
+    <div class="hamburger" onclick="toggleDrawer()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <div id="drawer" class="drawer">
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleDrawer()">&times;</a>
+        <a href="/login">Owner Login</a>
+        <a href="/upload">Upload File</a>
+    </div>
     <h1>Upload File</h1>
     <form id="upload-form" enctype="multipart/form-data">
         <input type="file" id="file-input" required>
@@ -94,6 +159,16 @@
 
             xhr.send(formData);
         });
+
+        function toggleDrawer() {
+            var drawer = document.getElementById("drawer");
+            if (drawer.style.width === "250px") {
+                drawer.style.width = "0";
+            } else {
+                drawer.style.width = "250px";
+            }
+        }
     </script>
 </body>
 </html>
+

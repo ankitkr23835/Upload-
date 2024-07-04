@@ -3,44 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to File Sharing Platform</title>
+    <title>Uploads Directory</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #e0f7fa;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             color: #333;
-            margin: 0;
-            padding: 0;
+            text-align: center;
+            padding: 50px;
         }
         h1 {
-            color: #00796b;
-            font-size: 2.5em;
+            color: #4CAF50;
+            margin-bottom: 30px;
         }
-        p {
-            font-size: 1.2em;
-            margin: 20px 0;
-        }
-        .container {
+        .directory-list {
             max-width: 800px;
-            margin: 50px auto;
-            background-color: #ffffff;
+            margin: 0 auto;
+            background-color: #fff;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .directory {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
         }
         .hamburger {
             position: fixed;
             top: 20px;
             left: 20px;
+            display: inline-block;
             cursor: pointer;
             z-index: 1000;
         }
         .hamburger div {
             width: 35px;
             height: 5px;
-            background-color: #00796b;
+            background-color: #333;
             margin: 6px 0;
             transition: 0.4s;
         }
@@ -51,21 +51,21 @@
             z-index: 999;
             top: 0;
             left: 0;
-            background-color: #00796b;
+            background-color: #4CAF50;
             overflow-x: hidden;
             transition: 0.5s;
             padding-top: 60px;
         }
         .drawer a {
-            padding: 10px 15px;
+            padding: 8px 8px 8px 32px;
             text-decoration: none;
-            font-size: 1.5em;
+            font-size: 25px;
             color: #fff;
             display: block;
             transition: 0.3s;
         }
         .drawer a:hover {
-            background-color: #004d40;
+            background-color: #45a049;
         }
         .drawer .closebtn {
             position: absolute;
@@ -73,21 +73,6 @@
             right: 25px;
             font-size: 36px;
             margin-left: 50px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 20px 0;
-            font-size: 1.2em;
-            color: #fff;
-            background-color: #00796b;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #004d40;
         }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5956825596826996" crossorigin="anonymous"></script>
@@ -100,14 +85,18 @@
     </div>
     <div id="drawer" class="drawer">
         <a href="javascript:void(0)" class="closebtn" onclick="toggleDrawer()">&times;</a>
-        <a href="/login">Owner Login</a>
+        <a href="/">Dashboard</a>
         <a href="/upload">Upload File</a>
     </div>
-    <div class="container">
-        <h1>Welcome to the File Sharing Platform!</h1>
-        <p>Our platform allows you to easily upload and share large files with anyone, anywhere. Enjoy secure and efficient file sharing with our easy-to-use interface. Start now by clicking the button below!</p>
-        <a href="/upload" class="btn">Upload a File</a>
+    <div class="directory-list">
+        <h1>Uploads Directory</h1>
+        {% for directory, size in directories %}
+        <div class="directory">
+            <strong>{{ directory }}</strong> - {{ (size / 1024 / 1024) | round(2) }} MB
+        </div>
+        {% endfor %}
     </div>
+
     <script>
         function toggleDrawer() {
             var drawer = document.getElementById("drawer");

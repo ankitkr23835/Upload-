@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to File Sharing Platform</title>
+    <title>Owner Login</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
         body {
@@ -12,28 +12,53 @@
             color: #333;
             margin: 0;
             padding: 0;
+            text-align: center;
         }
-        h1 {
-            color: #00796b;
-            font-size: 2.5em;
-        }
-        p {
-            font-size: 1.2em;
-            margin: 20px 0;
-        }
-        .container {
-            max-width: 800px;
+        .login-container {
+            max-width: 400px;
             margin: 50px auto;
             background-color: #ffffff;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #00796b;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #004d40;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+            font-size: 0.9em;
         }
         .hamburger {
             position: fixed;
             top: 20px;
             left: 20px;
+            display: inline-block;
             cursor: pointer;
             z-index: 1000;
         }
@@ -73,21 +98,8 @@
             right: 25px;
             font-size: 36px;
             margin-left: 50px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 20px 0;
-            font-size: 1.2em;
             color: #fff;
-            background-color: #00796b;
-            border: none;
-            border-radius: 5px;
             text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #004d40;
         }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5956825596826996" crossorigin="anonymous"></script>
@@ -100,14 +112,21 @@
     </div>
     <div id="drawer" class="drawer">
         <a href="javascript:void(0)" class="closebtn" onclick="toggleDrawer()">&times;</a>
-        <a href="/login">Owner Login</a>
+        <a href="/">Dashboard</a>
         <a href="/upload">Upload File</a>
     </div>
-    <div class="container">
-        <h1>Welcome to the File Sharing Platform!</h1>
-        <p>Our platform allows you to easily upload and share large files with anyone, anywhere. Enjoy secure and efficient file sharing with our easy-to-use interface. Start now by clicking the button below!</p>
-        <a href="/upload" class="btn">Upload a File</a>
+    <div class="login-container">
+        <h1>Owner Login</h1>
+        <form method="POST" action="/login">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
     </div>
+
     <script>
         function toggleDrawer() {
             var drawer = document.getElementById("drawer");
