@@ -5,68 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload File</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #e0f7fa;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             color: #333;
-            margin: 0;
-            padding: 0;
             text-align: center;
+            padding: 50px;
         }
         h1 {
-            color: #00796b;
-            margin-top: 50px;
-            font-size: 2.5em;
+            color: #4CAF50;
+            margin-bottom: 30px;
         }
-        form {
-            margin: 20px auto;
-            padding: 30px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background-color: #ffffff;
+        .upload-form {
             max-width: 400px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         input[type="file"] {
-            margin: 20px 0;
-            font-size: 1.2em;
+            margin: 10px 0;
+            display: none; /* Hide by default */
         }
-        button {
-            background-color: #00796b;
+        .file-input-label {
+            display: block;
+            background-color: #4CAF50;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1.2em;
             transition: background-color 0.3s ease;
         }
-        button:hover {
-            background-color: #004d40;
+        .file-input-label:hover {
+            background-color: #45a049;
         }
-        progress {
+        .file-info {
+            margin-top: 10px;
+        }
+        .cancel-btn {
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        .cancel-btn:hover {
+            background-color: #f44336;
+        }
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+        .progress-bar {
             width: 100%;
             height: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-        #progress-text {
             margin-top: 10px;
-            font-size: 1em;
-            color: #00796b;
+            display: none; /* Hidden by default */
+        }
+        .progress-text {
+            margin-top: 10px;
+            display: none; /* Hidden by default */
         }
         .hamburger {
             position: fixed;
             top: 20px;
             left: 20px;
+            display: inline-block;
             cursor: pointer;
             z-index: 1000;
         }
         .hamburger div {
             width: 35px;
             height: 5px;
-            background-color: #00796b;
+            background-color: #333;
             margin: 6px 0;
             transition: 0.4s;
         }
@@ -77,21 +102,21 @@
             z-index: 999;
             top: 0;
             left: 0;
-            background-color: #00796b;
+            background-color: #4CAF50;
             overflow-x: hidden;
             transition: 0.5s;
             padding-top: 60px;
         }
         .drawer a {
-            padding: 10px 15px;
+            padding: 8px 8px 8px 32px;
             text-decoration: none;
-            font-size: 1.5em;
+            font-size: 25px;
             color: #fff;
             display: block;
             transition: 0.3s;
         }
         .drawer a:hover {
-            background-color: #004d40;
+            background-color: #45a049;
         }
         .drawer .closebtn {
             position: absolute;
@@ -111,29 +136,49 @@
     </div>
     <div id="drawer" class="drawer">
         <a href="javascript:void(0)" class="closebtn" onclick="toggleDrawer()">&times;</a>
-        <a href="/login">Owner Login</a>
+        <a href="/dashboard">Dashboard</a>
         <a href="/upload">Upload File</a>
     </div>
     <h1>Upload File</h1>
-    <form id="upload-form" enctype="multipart/form-data">
-        <input type="file" id="file-input" required>
-        <button type="submit">Upload</button>
+    <form id="upload-form" class="upload-form" enctype="multipart/form-data">
+        <label for="file-input" class="file-input-label" id="file-label">Choose a File</label>
+        <input type="file" id="file-input" name="file" style="display: none;" onchange="updateFileInfo()">
+        <p class="file-info" id="file-info"></p>
+        <button type="button" id="cancel-btn" class="cancel-btn" onclick="cancelUpload()" style="display: none;">Cancel</button>
+        <button type="submit" id="upload-btn" class="upload-btn">Upload</button>
+        <progress id="progress-bar" class="progress-bar" max="100" value="0"></progress>
+        <div id="progress-text" class="progress-text"></div>
     </form>
-    <progress id="progress-bar" max="100" value="0"></progress>
-    <div id="progress-text"></div>
 
     <script>
+        var uploadStarted = false;
+
+        function updateFileInfo() {
+            var fileInput = document.getElementById('file-input');
+            var fileLabel = document.getElementById('file-label');
+            var fileInfo = document.getElementById('file-info');
+            
+            if (fileInput.files.length > 0) {
+                var fileName = fileInput.files[0].name;
+                var fileSize = (fileInput.files[0].size / 1024 / 1024).toFixed(2); // in MB
+                fileInfo.textContent = `${fileName} (${fileSize} MB)`;
+                fileLabel.textContent = 'Choose Another File';
+                if (!uploadStarted) {
+                    document.getElementById('cancel-btn').style.display = 'none';
+                }
+            }
+        }
+
+        function cancelUpload() {
+            window.location.reload();
+        }
+
         document.getElementById('upload-form').addEventListener('submit', function(event) {
             event.preventDefault();
-            var formData = new FormData();
-            var fileInput = document.getElementById('file-input');
-            formData.append('file', fileInput.files[0]);
+            var formData = new FormData(this);
 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/upload', true);
-
-            var startTime = new Date().getTime();
-            var uploadedSize = 0;
 
             xhr.upload.onprogress = function(event) {
                 var progressBar = document.getElementById('progress-bar');
@@ -142,11 +187,20 @@
                     var percentComplete = (event.loaded / event.total) * 100;
                     progressBar.value = percentComplete;
 
-                    uploadedSize = event.loaded;
                     var elapsedTime = (new Date().getTime() - startTime) / 1000;  // in seconds
-                    var uploadSpeed = (uploadedSize / 1024) / elapsedTime;  // KB/s
-                    progressText.textContent = `Uploaded ${(uploadedSize / 1024).toFixed(2)} KB | Speed: ${uploadSpeed.toFixed(2)} KB/s`;
+                    var uploadSpeed = (event.loaded / 1024) / elapsedTime;  // KB/s
+                    progressText.textContent = `Uploaded ${(event.loaded / 1024).toFixed(2)} KB | Speed: ${uploadSpeed.toFixed(2)} KB/s`;
                 }
+            };
+
+            xhr.onloadstart = function() {
+                uploadStarted = true;
+                document.getElementById('file-label').textContent = 'File Selected';
+                document.getElementById('file-info').style.display = 'none';
+                document.getElementById('cancel-btn').style.display = 'inline-block';
+                document.getElementById('upload-btn').style.display = 'none';
+                document.getElementById('progress-bar').style.display = 'block';
+                document.getElementById('progress-text').style.display = 'block';
             };
 
             xhr.onload = function() {
@@ -154,6 +208,7 @@
                     window.location.href = '/upload_success';
                 } else {
                     alert('An error occurred while uploading the file.');
+                    window.location.reload();
                 }
             };
 
