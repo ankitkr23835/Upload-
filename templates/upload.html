@@ -14,71 +14,70 @@
         }
         h1 {
             color: #4CAF50;
-            margin-bottom: 30px;
         }
-        .upload-form {
-            max-width: 400px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 30px;
+        form {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            max-width: 400px;
         }
         input[type="file"] {
-            margin: 10px 0;
-            display: none; /* Hide by default */
+            display: none;
         }
         .file-input-label {
-            display: block;
+            display: inline-block;
             background-color: #4CAF50;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
         .file-input-label:hover {
             background-color: #45a049;
         }
-        .file-info {
+        .file-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             margin-top: 10px;
         }
-        .cancel-btn {
-            background-color: #ff5722;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 10px;
-        }
-        .cancel-btn:hover {
-            background-color: #f44336;
-        }
-        .upload-btn {
+        .file-buttons button {
             background-color: #4CAF50;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 10px;
+            display: inline-block;
         }
-        .upload-btn:hover {
+        .file-buttons button:hover {
             background-color: #45a049;
         }
-        .progress-bar {
+        progress {
             width: 100%;
             height: 20px;
-            margin-top: 10px;
-            display: none; /* Hidden by default */
+            margin: 10px 0;
+            display: none;
         }
-        .progress-text {
+        #progress-text {
             margin-top: 10px;
-            display: none; /* Hidden by default */
+        }
+        .upload-status {
+            margin-top: 20px;
+            display: none;
+        }
+        .upload-status p {
+            font-size: 1.2em;
+            color: #00796b;
+        }
+        .upload-status.error p {
+            color: red;
+        }
+        .upload-status.success p {
+            color: #4CAF50;
         }
         .hamburger {
             position: fixed;
@@ -136,83 +135,111 @@
     </div>
     <div id="drawer" class="drawer">
         <a href="javascript:void(0)" class="closebtn" onclick="toggleDrawer()">&times;</a>
-        <a href="/dashboard">Dashboard</a>
+        <a href="/">Dashboard</a>
         <a href="/upload">Upload File</a>
     </div>
     <h1>Upload File</h1>
-    <form id="upload-form" class="upload-form" enctype="multipart/form-data">
-        <label for="file-input" class="file-input-label" id="file-label">Choose a File</label>
-        <input type="file" id="file-input" name="file" style="display: none;" onchange="updateFileInfo()">
-        <p class="file-info" id="file-info"></p>
-        <button type="button" id="cancel-btn" class="cancel-btn" onclick="cancelUpload()" style="display: none;">Cancel</button>
-        <button type="submit" id="upload-btn" class="upload-btn">Upload</button>
-        <progress id="progress-bar" class="progress-bar" max="100" value="0"></progress>
-        <div id="progress-text" class="progress-text"></div>
+    <form id="upload-form" enctype="multipart/form-data">
+        <label for="file-input" class="file-input-label">
+            <img src="./upload.png"  style="vertical-align: middle; margin-right: 5px; width: 20px; height: 20px;">
+            Choose File
+        </label>
+        <input type="file" id="file-input" name="file" required>
+        <div class="file-buttons">
+            <button type="submit" id="upload-btn">Upload</button>
+            <button type="button" id="cancel-btn" style="display: none;" onclick="cancelUpload()">Cancel</button>
+        </div>
     </form>
+    <progress id="progress-bar" max="100" value="0"></progress>
+    <div id="progress-text" class="upload-status">
+        <p>Upload in progress...</p>
+    </div>
+    <div id="upload-status" class="upload-status">
+        <p id="status-message"></p>
+    </div>
 
     <script>
         var uploadStarted = false;
 
-        function updateFileInfo() {
-            var fileInput = document.getElementById('file-input');
-            var fileLabel = document.getElementById('file-label');
-            var fileInfo = document.getElementById('file-info');
-            
-            if (fileInput.files.length > 0) {
-                var fileName = fileInput.files[0].name;
-                var fileSize = (fileInput.files[0].size / 1024 / 1024).toFixed(2); // in MB
-                fileInfo.textContent = `${fileName} (${fileSize} MB)`;
-                fileLabel.textContent = 'Choose Another File';
-                if (!uploadStarted) {
-                    document.getElementById('cancel-btn').style.display = 'none';
-                }
-            }
-        }
-
-        function cancelUpload() {
-            window.location.reload();
-        }
-
         document.getElementById('upload-form').addEventListener('submit', function(event) {
             event.preventDefault();
-            var formData = new FormData(this);
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload', true);
+            if (!uploadStarted) {
+                var formData = new FormData();
+                var fileInput = document.getElementById('file-input');
+                formData.append('file', fileInput.files[0]);
 
-            xhr.upload.onprogress = function(event) {
-                var progressBar = document.getElementById('progress-bar');
-                var progressText = document.getElementById('progress-text');
-                if (event.lengthComputable) {
-                    var percentComplete = (event.loaded / event.total) * 100;
-                    progressBar.value = percentComplete;
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/upload', true);
 
-                    var elapsedTime = (new Date().getTime() - startTime) / 1000;  // in seconds
-                    var uploadSpeed = (event.loaded / 1024) / elapsedTime;  // KB/s
-                    progressText.textContent = `Uploaded ${(event.loaded / 1024).toFixed(2)} KB | Speed: ${uploadSpeed.toFixed(2)} KB/s`;
-                }
-            };
+                xhr.upload.onprogress = function(event) {
+                    var progressBar = document.getElementById('progress-bar');
+                    var progressText = document.getElementById('progress-text');
+                    var uploadStatus = document.getElementById('upload-status');
+                    var uploadBtn = document.getElementById('upload-btn');
+                    var cancelBtn = document.getElementById('cancel-btn');
 
-            xhr.onloadstart = function() {
-                uploadStarted = true;
-                document.getElementById('file-label').textContent = 'File Selected';
-                document.getElementById('file-info').style.display = 'none';
-                document.getElementById('cancel-btn').style.display = 'inline-block';
-                document.getElementById('upload-btn').style.display = 'none';
-                document.getElementById('progress-bar').style.display = 'block';
-                document.getElementById('progress-text').style.display = 'block';
-            };
+                    if (!uploadStarted) {
+                        uploadStarted = true;
+                        progressText.style.display = 'block';
+                        uploadBtn.style.display = 'none';
+                        cancelBtn.style.display = 'inline-block';
+                    }
 
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    window.location.href = '/upload_success';
-                } else {
-                    alert('An error occurred while uploading the file.');
-                    window.location.reload();
-                }
-            };
+                    if (event.lengthComputable) {
+                        var percentComplete = (event.loaded / event.total) * 100;
+                        progressBar.value = percentComplete;
+                    }
+                };
 
-            xhr.send(formData);
+                xhr.onload = function() {
+                    var uploadStatus = document.getElementById('upload-status');
+                    var statusMessage = document.getElementById('status-message');
+                    if (xhr.status === 200) {
+                        statusMessage.textContent = 'File uploaded successfully!';
+                        uploadStatus.className = 'upload-status success';
+                    } else {
+                        statusMessage.textContent = 'Error uploading file.';
+                        uploadStatus.className = 'upload-status error';
+                    }
+                    uploadStatus.style.display = 'block';
+                    document.getElementById('upload-form').reset();
+                    resetUpload();
+                };
+
+                xhr.send(formData);
+            }
+        });
+
+        function cancelUpload() {
+            uploadStarted = false;
+            resetUpload();
+        }
+
+        function resetUpload() {
+            var progressText = document.getElementById('progress-text');
+            var uploadStatus = document.getElementById('upload-status');
+            var progressBar = document.getElementById('progress-bar');
+            var uploadBtn = document.getElementById('upload-btn');
+            var cancelBtn = document.getElementById('cancel-btn');
+            progressText.style.display = 'none';
+            uploadStatus.style.display = 'none';
+            progressBar.value = 0;
+            uploadBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'none';
+        }
+
+        document.getElementById('file-input').addEventListener('change', function() {
+            var fileInput = document.getElementById('file-input');
+            var uploadBtn = document.getElementById('upload-btn');
+            var cancelBtn = document.getElementById('cancel-btn');
+
+            if (fileInput.files.length > 0) {
+                uploadBtn.textContent = 'Upload';
+                cancelBtn.style.display = 'none';
+            } else {
+                uploadBtn.textContent = 'Choose File';
+            }
         });
 
         function toggleDrawer() {
