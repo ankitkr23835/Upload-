@@ -54,14 +54,15 @@ def login():
 def list_uploads():
     if 'username' not in session:
         return redirect(url_for('login'))
-    
-    upload_dir = 'uploads'
-    directories = []
-    for subdir, _, files in os.walk(upload_dir):
-        total_size = sum(os.path.getsize(os.path.join(subdir, f)) for f in files)
-        directories.append((subdir, total_size))
-    return render_template('list_uploads.html', directories=directories)
 
+    upload_dir = 'uploads'
+    files_with_paths = []
+    for subdir, _, files in os.walk(upload_dir):
+        for file in files:
+            file_path = os.path.join(subdir, file)
+            file_size = os.path.getsize(file_path)
+            files_with_paths.append((file_path, file_size))
+    return render_template('list_uploads.html', files_with_paths=files_with_paths)
 
 @app.route('/logout')
 def logout():
@@ -126,21 +127,6 @@ def download_file(directory, filename):
     else:
         return 'File not found', 404
 
-def delete_old_files():
-    # Delete files and directories older than 24 hours
-    threshold_time = datetime.now() - timedelta(hours=168)
-    old_files = uploads_collection.find({'time_created': {'$lt': threshold_time}})
-    for file in old_files:
-        file_path = os.path.join('uploads', file['filename'])
-        if os.path.exists(file_path):
-            os.remove(file_path)
-        uploads_collection.delete_one({'filename': file['filename']})
 
 if __name__ == '__main__':
-    # Run the delete_old_files function periodically (every hour)
-    delete_old_files()
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(delete_old_files, 'interval', hours=1)
-    scheduler.start()
-
     app.run(host="0.0.0.0", port=3000, debug=True)
